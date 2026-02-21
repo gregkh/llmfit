@@ -1,6 +1,6 @@
 [package]
 name = "llmfit"
-version = "0.3.4" # x-release-please-version
+version = "0.3.5" # x-release-please-version
 edition = "2024"
 authors = ["axjns"]
 description = "Right-size LLM models to your system hardware. Interactive TUI and CLI to match models against available RAM, CPU, and GPU."
