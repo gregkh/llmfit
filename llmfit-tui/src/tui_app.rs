@@ -266,6 +266,16 @@ impl App {
         }
     }
 
+    pub fn half_page_up(&mut self) {
+        self.selected_row = self.selected_row.saturating_sub(5);
+    }
+
+    pub fn half_page_down(&mut self) {
+        if !self.filtered_fits.is_empty() {
+            self.selected_row = (self.selected_row + 5).min(self.filtered_fits.len() - 1);
+        }
+    }
+
     pub fn home(&mut self) {
         self.selected_row = 0;
     }
