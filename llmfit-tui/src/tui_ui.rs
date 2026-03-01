@@ -880,61 +880,111 @@ fn draw_detail(frame: &mut Frame, app: &App, area: Rect, tc: &ThemeColors) {
         ]),
     ]);
 
-    lines.push(Line::from(""));
-    // GGUF download sources
+    // Build right-pane content (GGUF sources + notes)
+    let has_right_pane = !fit.model.gguf_sources.is_empty() || !fit.notes.is_empty();
+
+    let mut right_lines: Vec<Line> = vec![Line::from("")];
+
     if !fit.model.gguf_sources.is_empty() {
-        lines.push(Line::from(Span::styled(
+        right_lines.push(Line::from(Span::styled(
             "  ── GGUF Downloads ──",
             Style::default().fg(tc.accent),
         )));
-        lines.push(Line::from(""));
+        right_lines.push(Line::from(""));
         for src in &fit.model.gguf_sources {
-            lines.push(Line::from(vec![
+            right_lines.push(Line::from(vec![
                 Span::styled(
                     format!("  📦 {:<12}", src.provider),
                     Style::default().fg(tc.info),
                 ),
                 Span::styled(
-                    format!("huggingface.co/{}", src.repo),
+                    format!("hf.co/{}", src.repo),
                     Style::default().fg(tc.fg),
                 ),
             ]));
         }
-        lines.push(Line::from(""));
-        lines.push(Line::from(Span::styled(
-            format!(
-                "  Tip: llmfit download {} --quant {}",
-                fit.model.gguf_sources[0].repo, fit.best_quant
-            ),
+        right_lines.push(Line::from(""));
+        right_lines.push(Line::from(Span::styled(
+            format!("  llmfit download \\"),
             Style::default().fg(tc.muted),
         )));
-        lines.push(Line::from(""));
+        right_lines.push(Line::from(Span::styled(
+            format!("    {} \\", fit.model.gguf_sources[0].repo),
+            Style::default().fg(tc.muted),
+        )));
+        right_lines.push(Line::from(Span::styled(
+            format!("    --quant {}", fit.best_quant),
+            Style::default().fg(tc.muted),
+        )));
+        right_lines.push(Line::from(""));
     }
 
     if !fit.notes.is_empty() {
-        lines.push(Line::from(Span::styled(
+        right_lines.push(Line::from(Span::styled(
             "  ── Notes ──",
             Style::default().fg(tc.accent),
         )));
-        lines.push(Line::from(""));
+        right_lines.push(Line::from(""));
         for note in &fit.notes {
-            lines.push(Line::from(Span::styled(
+            right_lines.push(Line::from(Span::styled(
                 format!("  {}", note),
                 Style::default().fg(tc.fg),
             )));
         }
     }
 
-    let block = Block::default()
-        .borders(Borders::ALL)
-        .border_style(Style::default().fg(tc.border))
-        .title(format!(" {} ", fit.model.name))
-        .title_style(Style::default().fg(tc.fg).bold());
+    // Track the left pane area for cursor positioning
+    let left_area;
 
-    let paragraph = Paragraph::new(lines)
-        .block(block)
-        .wrap(Wrap { trim: false });
-    frame.render_widget(paragraph, area);
+    if has_right_pane {
+        // Split into left (model info) and right (downloads + notes) panes
+        let h_layout = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(55), Constraint::Percentage(45)])
+            .split(area);
+
+        left_area = h_layout[0];
+
+        let left_block = Block::default()
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(tc.border))
+            .title(format!(" {} ", fit.model.name))
+            .title_style(Style::default().fg(tc.fg).bold());
+
+        let left_paragraph = Paragraph::new(lines)
+            .block(left_block)
+            .wrap(Wrap { trim: false });
+        frame.render_widget(left_paragraph, h_layout[0]);
+
+        let right_title = if !fit.model.gguf_sources.is_empty() {
+            " 📦 Downloads & Notes "
+        } else {
+            " Notes "
+        };
+        let right_block = Block::default()
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(tc.border))
+            .title(right_title)
+            .title_style(Style::default().fg(tc.info).bold());
+
+        let right_paragraph = Paragraph::new(right_lines)
+            .block(right_block)
+            .wrap(Wrap { trim: false });
+        frame.render_widget(right_paragraph, h_layout[1]);
+    } else {
+        left_area = area;
+
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(tc.border))
+            .title(format!(" {} ", fit.model.name))
+            .title_style(Style::default().fg(tc.fg).bold());
+
+        let paragraph = Paragraph::new(lines)
+            .block(block)
+            .wrap(Wrap { trim: false });
+        frame.render_widget(paragraph, area);
+    }
 
     if app.input_mode == InputMode::Plan {
         let (row_offset, label_len) = match app.plan_field {
@@ -942,9 +992,9 @@ fn draw_detail(frame: &mut Frame, app: &App, area: Rect, tc: &ThemeColors) {
             PlanField::Quant => (6u16, "  Quant:      ".len() as u16),
             PlanField::TargetTps => (7u16, "  Target TPS: ".len() as u16),
         };
-        let x = area.x + 1 + label_len + app.plan_cursor_position as u16;
-        let y = area.y + 1 + row_offset;
-        if x < area.x + area.width.saturating_sub(1) && y < area.y + area.height.saturating_sub(1) {
+        let x = left_area.x + 1 + label_len + app.plan_cursor_position as u16;
+        let y = left_area.y + 1 + row_offset;
+        if x < left_area.x + left_area.width.saturating_sub(1) && y < left_area.y + left_area.height.saturating_sub(1) {
             frame.set_cursor_position((x, y));
         }
     }
