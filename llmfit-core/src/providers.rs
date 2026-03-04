@@ -447,9 +447,7 @@ impl ModelProvider for MlxProvider {
                     )));
                 }
                 Err(e) => {
-                    let _ = tx.send(PullEvent::Error(format!(
-                        "failed to run hf: {e}"
-                    )));
+                    let _ = tx.send(PullEvent::Error(format!("failed to run hf: {e}")));
                 }
             }
         });
