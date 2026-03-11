@@ -3,8 +3,22 @@ use crate::hardware::{GpuBackend, SystemSpecs};
 use crate::models::{LlmModel, quant_speed_multiplier};
 
 const SUPPORTED_QUANTS: &[&str] = &[
-    "F32", "F16", "BF16", "Q8_0", "Q6_K", "Q5_K_M", "Q4_K_M", "Q4_0", "Q3_K_M", "Q2_K", "mlx-8bit",
-    "mlx-4bit", "AWQ-4bit", "AWQ-8bit", "GPTQ-Int4", "GPTQ-Int8",
+    "F32",
+    "F16",
+    "BF16",
+    "Q8_0",
+    "Q6_K",
+    "Q5_K_M",
+    "Q4_K_M",
+    "Q4_0",
+    "Q3_K_M",
+    "Q2_K",
+    "mlx-8bit",
+    "mlx-4bit",
+    "AWQ-4bit",
+    "AWQ-8bit",
+    "GPTQ-Int4",
+    "GPTQ-Int8",
 ];
 
 #[derive(Debug, Clone, serde::Serialize)]
