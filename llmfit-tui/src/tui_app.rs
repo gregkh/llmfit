@@ -968,8 +968,15 @@ impl App {
         if !download_options.is_empty() {
             self.open_download_provider_popup(model_name, download_options);
         } else {
-            self.pull_status =
-                Some("No compatible runtime available — install Ollama or llama.cpp".to_string());
+            let any_runtime = self.ollama_available
+                || self.ollama_binary_available
+                || self.llamacpp_available
+                || self.mlx_available;
+            self.pull_status = Some(if any_runtime {
+                "No downloadable format found for this model".to_string()
+            } else {
+                "No compatible runtime available — install Ollama or llama.cpp".to_string()
+            });
         }
     }
 
