@@ -1374,8 +1374,7 @@ impl App {
             self.pull_status = Some(if any_runtime {
                 "No downloadable format found for this model".to_string()
             } else {
-                "No compatible runtime available — install Ollama, llama.cpp, or Docker"
-                    .to_string()
+                "No compatible runtime available — install Ollama, llama.cpp, or Docker".to_string()
             });
         }
     }

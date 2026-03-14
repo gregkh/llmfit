@@ -1177,9 +1177,7 @@ impl ModelProvider for DockerModelRunnerProvider {
                     )));
                 }
                 Err(e) => {
-                    let _ = tx.send(PullEvent::Error(format!(
-                        "Failed to run docker: {e}"
-                    )));
+                    let _ = tx.send(PullEvent::Error(format!("Failed to run docker: {e}")));
                 }
             }
         });

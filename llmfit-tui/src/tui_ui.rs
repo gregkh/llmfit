@@ -1435,10 +1435,8 @@ fn draw_detail(frame: &mut Frame, app: &App, area: Rect, tc: &ThemeColors) {
                 if providers::is_model_installed_mlx(&fit.model.name, &app.mlx_installed) {
                     installed_providers.push("MLX");
                 }
-                if providers::is_model_installed_llamacpp(
-                    &fit.model.name,
-                    &app.llamacpp_installed,
-                ) {
+                if providers::is_model_installed_llamacpp(&fit.model.name, &app.llamacpp_installed)
+                {
                     installed_providers.push("llama.cpp");
                 }
                 if providers::is_model_installed_docker_mr(
@@ -1447,8 +1445,10 @@ fn draw_detail(frame: &mut Frame, app: &App, area: Rect, tc: &ThemeColors) {
                 ) {
                     installed_providers.push("Docker");
                 }
-                let any_available =
-                    app.ollama_available || app.mlx_available || app.llamacpp_available || app.docker_mr_available;
+                let any_available = app.ollama_available
+                    || app.mlx_available
+                    || app.llamacpp_available
+                    || app.docker_mr_available;
 
                 if !installed_providers.is_empty() {
                     let label = installed_providers
@@ -2302,7 +2302,10 @@ fn status_keys_and_mode(app: &App) -> (String, String) {
             } else {
                 "Enter:detail"
             };
-            let any_provider = app.ollama_available || app.mlx_available || app.llamacpp_available || app.docker_mr_available;
+            let any_provider = app.ollama_available
+                || app.mlx_available
+                || app.llamacpp_available
+                || app.docker_mr_available;
             let ollama_keys = if any_provider {
                 let installed_key = if app.installed_first {
                     "i:all"
