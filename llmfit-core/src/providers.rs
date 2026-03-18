@@ -1904,7 +1904,7 @@ fn strip_trailing_common_model_suffixes(name: &str) -> String {
     let mut out = name.to_string();
     loop {
         let mut changed = false;
-        for suffix in ["-instruct", "-chat", "-hf", "-it"] {
+        for suffix in ["-instruct", "-chat", "-hf", "-it", "-base"] {
             if let Some(stripped) = out.strip_suffix(suffix) {
                 out = stripped.trim_end_matches('-').to_string();
                 changed = true;
@@ -1969,6 +1969,23 @@ pub fn hf_name_to_mlx_candidates(hf_name: &str) -> Vec<String> {
         ("Qwen3-14B", "Qwen3-14B"),
         ("Qwen3-8B", "Qwen3-8B"),
         ("Qwen3-4B", "Qwen3-4B"),
+        ("Qwen3-1.7B", "Qwen3-1.7B"),
+        ("Qwen3-0.6B", "Qwen3-0.6B"),
+        ("Qwen3-30B-A3B", "Qwen3-30B-A3B"),
+        ("Qwen3-235B-A22B", "Qwen3-235B-A22B"),
+        // Qwen3.5
+        ("Qwen3.5-0.6B", "Qwen3.5-0.6B"),
+        ("Qwen3.5-1.7B", "Qwen3.5-1.7B"),
+        ("Qwen3.5-4B", "Qwen3.5-4B"),
+        ("Qwen3.5-8B", "Qwen3.5-8B"),
+        ("Qwen3.5-9B", "Qwen3.5-9B"),
+        ("Qwen3.5-14B", "Qwen3.5-14B"),
+        ("Qwen3.5-27B", "Qwen3.5-27B"),
+        ("Qwen3.5-32B", "Qwen3.5-32B"),
+        ("Qwen3.5-35B-A3B", "Qwen3.5-35B-A3B"),
+        ("Qwen3.5-72B", "Qwen3.5-72B"),
+        ("Qwen3.5-122B-A10B", "Qwen3.5-122B-A10B"),
+        ("Qwen3.5-397B-A17B", "Qwen3.5-397B-A17B"),
         // Mistral
         ("Mistral-7B-Instruct-v0.3", "Mistral-7B-Instruct-v0.3"),
         (
@@ -1976,21 +1993,56 @@ pub fn hf_name_to_mlx_candidates(hf_name: &str) -> Vec<String> {
             "Mistral-Small-24B-Instruct-2501",
         ),
         ("Mixtral-8x7B-Instruct-v0.1", "Mixtral-8x7B-Instruct-v0.1"),
+        (
+            "Mistral-Small-3.1-24B-Instruct-2503",
+            "Mistral-Small-3.1-24B-Instruct-2503",
+        ),
+        ("Ministral-8B-Instruct-2410", "Ministral-8B-Instruct-2410"),
+        ("Mistral-Nemo-Instruct-2407", "Mistral-Nemo-Instruct-2407"),
         // DeepSeek
         (
             "DeepSeek-R1-Distill-Qwen-32B",
             "DeepSeek-R1-Distill-Qwen-32B",
         ),
         ("DeepSeek-R1-Distill-Qwen-7B", "DeepSeek-R1-Distill-Qwen-7B"),
+        (
+            "DeepSeek-R1-Distill-Qwen-14B",
+            "DeepSeek-R1-Distill-Qwen-14B",
+        ),
+        (
+            "DeepSeek-R1-Distill-Llama-8B",
+            "DeepSeek-R1-Distill-Llama-8B",
+        ),
+        (
+            "DeepSeek-R1-Distill-Llama-70B",
+            "DeepSeek-R1-Distill-Llama-70B",
+        ),
         // Gemma
         ("gemma-3-12b-it", "gemma-3-12b-it"),
         ("gemma-2-27b-it", "gemma-2-27b-it"),
         ("gemma-2-9b-it", "gemma-2-9b-it"),
         ("gemma-2-2b-it", "gemma-2-2b-it"),
+        ("gemma-3-1b-it", "gemma-3-1b-it"),
+        ("gemma-3-4b-it", "gemma-3-4b-it"),
+        ("gemma-3-27b-it", "gemma-3-27b-it"),
+        ("gemma-3n-E4B-it", "gemma-3n-E4B-it"),
+        ("gemma-3n-E2B-it", "gemma-3n-E2B-it"),
         // Phi
         ("Phi-4", "Phi-4"),
         ("Phi-3.5-mini-instruct", "Phi-3.5-mini-instruct"),
         ("Phi-3-mini-4k-instruct", "Phi-3-mini-4k-instruct"),
+        ("Phi-4-mini-instruct", "Phi-4-mini-instruct"),
+        ("Phi-4-reasoning", "Phi-4-reasoning"),
+        ("Phi-4-mini-reasoning", "Phi-4-mini-reasoning"),
+        // Llama 4
+        (
+            "Llama-4-Scout-17B-16E-Instruct",
+            "Llama-4-Scout-17B-16E-Instruct",
+        ),
+        (
+            "Llama-4-Maverick-17B-128E-Instruct",
+            "Llama-4-Maverick-17B-128E-Instruct",
+        ),
     ];
 
     for &(hf_suffix, mlx_base) in mappings {
@@ -2008,6 +2060,9 @@ pub fn hf_name_to_mlx_candidates(hf_name: &str) -> Vec<String> {
     if !normalized_repo.is_empty() {
         push_unique_candidate(&mut candidates, format!("{}-4bit", normalized_repo));
         push_unique_candidate(&mut candidates, format!("{}-8bit", normalized_repo));
+        // Some mlx-community repos use a -MLX- infix (e.g. Model-MLX-4bit)
+        push_unique_candidate(&mut candidates, format!("{}-mlx-4bit", normalized_repo));
+        push_unique_candidate(&mut candidates, format!("{}-mlx-8bit", normalized_repo));
         push_unique_candidate(&mut candidates, normalized_repo.clone());
     }
 
@@ -2015,6 +2070,8 @@ pub fn hf_name_to_mlx_candidates(hf_name: &str) -> Vec<String> {
     if !stripped.is_empty() && stripped != normalized_repo {
         push_unique_candidate(&mut candidates, format!("{}-4bit", stripped));
         push_unique_candidate(&mut candidates, format!("{}-8bit", stripped));
+        push_unique_candidate(&mut candidates, format!("{}-mlx-4bit", stripped));
+        push_unique_candidate(&mut candidates, format!("{}-mlx-8bit", stripped));
         push_unique_candidate(&mut candidates, stripped);
     }
 
@@ -2272,6 +2329,36 @@ mod tests {
             qwen.iter()
                 .any(|c| c.contains("qwen2.5-coder-14b-instruct"))
         );
+    }
+
+    #[test]
+    fn test_hf_name_to_mlx_candidates_qwen35() {
+        let candidates = hf_name_to_mlx_candidates("Qwen/Qwen3.5-9B");
+        assert!(candidates.iter().any(|c| c == "qwen3.5-9b-4bit"));
+        assert!(candidates.iter().any(|c| c == "qwen3.5-9b-8bit"));
+    }
+
+    #[test]
+    fn test_hf_name_to_mlx_candidates_llama4() {
+        let candidates = hf_name_to_mlx_candidates("meta-llama/Llama-4-Scout-17B-16E-Instruct");
+        assert!(candidates.iter().any(|c| c.contains("llama-4-scout")));
+        assert!(candidates.iter().any(|c| c.ends_with("-4bit")));
+    }
+
+    #[test]
+    fn test_hf_name_to_mlx_candidates_gemma3() {
+        let candidates = hf_name_to_mlx_candidates("google/gemma-3-27b-it");
+        assert!(candidates.iter().any(|c| c == "gemma-3-27b-it-4bit"));
+        assert!(candidates.iter().any(|c| c == "gemma-3-27b-it-8bit"));
+    }
+
+    #[test]
+    fn test_hf_name_to_mlx_fallback_generates_mlx_infix_candidates() {
+        // For models not in the explicit mapping, the fallback should also
+        // generate candidates with the -mlx- infix pattern
+        let candidates = hf_name_to_mlx_candidates("SomeOrg/SomeNewModel-7B");
+        assert!(candidates.iter().any(|c| c == "somenewmodel-7b-mlx-4bit"));
+        assert!(candidates.iter().any(|c| c == "somenewmodel-7b-mlx-8bit"));
     }
 
     #[test]
