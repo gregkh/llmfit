@@ -277,9 +277,7 @@ fn filtered_fits(
         .models
         .iter()
         .filter(|m| backend_compatible(m, &state.specs))
-        .map(|m| {
-            ModelFit::analyze_with_forced_runtime(m, &state.specs, context_limit, forced_rt)
-        })
+        .map(|m| ModelFit::analyze_with_forced_runtime(m, &state.specs, context_limit, forced_rt))
         .collect();
 
     let is_apple_silicon = state.specs.backend == GpuBackend::Metal && state.specs.unified_memory;

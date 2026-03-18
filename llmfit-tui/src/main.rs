@@ -883,18 +883,20 @@ fn run_recommend(
     let db = ModelDatabase::new();
 
     // Parse --force-runtime into an InferenceRuntime if provided
-    let forced_rt = force_runtime.as_deref().map(|rt| match rt.to_lowercase().as_str() {
-        "mlx" => llmfit_core::fit::InferenceRuntime::Mlx,
-        "llamacpp" | "llama.cpp" | "llama_cpp" => llmfit_core::fit::InferenceRuntime::LlamaCpp,
-        "vllm" => llmfit_core::fit::InferenceRuntime::Vllm,
-        other => {
-            eprintln!(
-                "Unknown runtime '{}'. Valid options: mlx, llamacpp, vllm",
-                other
-            );
-            std::process::exit(1);
-        }
-    });
+    let forced_rt = force_runtime
+        .as_deref()
+        .map(|rt| match rt.to_lowercase().as_str() {
+            "mlx" => llmfit_core::fit::InferenceRuntime::Mlx,
+            "llamacpp" | "llama.cpp" | "llama_cpp" => llmfit_core::fit::InferenceRuntime::LlamaCpp,
+            "vllm" => llmfit_core::fit::InferenceRuntime::Vllm,
+            other => {
+                eprintln!(
+                    "Unknown runtime '{}'. Valid options: mlx, llamacpp, vllm",
+                    other
+                );
+                std::process::exit(1);
+            }
+        });
 
     let mut fits: Vec<ModelFit> = db
         .get_all_models()
