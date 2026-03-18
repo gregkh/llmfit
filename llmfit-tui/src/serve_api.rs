@@ -1,5 +1,6 @@
+use std::collections::HashMap;
 use std::net::{IpAddr, SocketAddr};
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 
 use axum::extract::{Path, Query, State};
 use axum::http::header::{CACHE_CONTROL, CONTENT_TYPE};
@@ -16,6 +17,9 @@ use llmfit_core::models::{LlmModel, ModelDatabase, UseCase};
 use serde::{Deserialize, Serialize};
 
 include!(concat!(env!("OUT_DIR"), "/web_assets.rs"));
+
+static ASSET_MAP: LazyLock<HashMap<&'static str, &'static EmbeddedAsset>> =
+    LazyLock::new(|| EMBEDDED_WEB_ASSETS.iter().map(|a| (a.path, a)).collect());
 
 #[derive(Clone)]
 struct AppState {
@@ -126,7 +130,6 @@ pub fn run_serve(
     let app = build_router(state);
 
     println!("llmfit dashboard listening on http://{}/", addr);
-    println!("  Dashboard: http://{}/", addr);
     println!("  API models: http://{}/api/v1/models", addr);
     println!("  GET /health");
     println!("  GET /api/v1/system");
@@ -213,15 +216,20 @@ fn serve_web_path(path: &str) -> Response {
     response
         .headers_mut()
         .insert(CONTENT_TYPE, HeaderValue::from_static(asset.content_type));
+    let cache_value = if path.starts_with("/assets/") {
+        "public, max-age=31536000, immutable"
+    } else {
+        "no-cache"
+    };
     response.headers_mut().insert(
         CACHE_CONTROL,
-        HeaderValue::from_static("public, max-age=300"),
+        HeaderValue::from_static(cache_value),
     );
     response
 }
 
 fn find_web_asset(path: &str) -> Option<&'static EmbeddedAsset> {
-    EMBEDDED_WEB_ASSETS.iter().find(|asset| asset.path == path)
+    ASSET_MAP.get(path).copied()
 }
 
 async fn models(
