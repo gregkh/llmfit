@@ -444,8 +444,8 @@ fn draw_search_and_filters(frame: &mut Frame, app: &App, area: Rect, tc: &ThemeC
         .border_style(Style::default().fg(tc.border))
         .title(" TP [T] ")
         .title_style(Style::default().fg(tc.muted));
-    let tp_text = Paragraph::new(Line::from(Span::styled(app.tp_filter.label(), tp_style)))
-        .block(tp_block);
+    let tp_text =
+        Paragraph::new(Line::from(Span::styled(app.tp_filter.label(), tp_style))).block(tp_block);
     frame.render_widget(tp_text, chunks[7]);
 
     // Theme indicator

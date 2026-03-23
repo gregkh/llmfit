@@ -1630,7 +1630,12 @@ mod tests {
     // Tensor parallelism tests
     // ────────────────────────────────────────────────────────────────────
 
-    fn tp_test_model(name: &str, params_b: f64, attn_heads: Option<u32>, kv_heads: Option<u32>) -> LlmModel {
+    fn tp_test_model(
+        name: &str,
+        params_b: f64,
+        attn_heads: Option<u32>,
+        kv_heads: Option<u32>,
+    ) -> LlmModel {
         LlmModel {
             name: name.to_string(),
             provider: "Test".to_string(),
@@ -1687,10 +1692,10 @@ mod tests {
     fn test_valid_tp_sizes_48_heads() {
         // 48 attn heads, 8 kv heads — TP must divide both
         let model = tp_test_model("Llama-32B", 32.0, Some(48), Some(8));
-        assert!(model.supports_tp(2));  // 48%2==0, 8%2==0
+        assert!(model.supports_tp(2)); // 48%2==0, 8%2==0
         assert!(!model.supports_tp(3)); // 48%3==0 but 8%3!=0
-        assert!(model.supports_tp(4));  // 48%4==0, 8%4==0
-        assert!(model.supports_tp(8));  // 48%8==0, 8%8==0
+        assert!(model.supports_tp(4)); // 48%4==0, 8%4==0
+        assert!(model.supports_tp(8)); // 48%8==0, 8%8==0
     }
 
     #[test]

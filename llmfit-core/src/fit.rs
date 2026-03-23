@@ -72,11 +72,11 @@ pub enum FitLevel {
 /// This is the "optimization" dimension, independent of memory fit.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 pub enum RunMode {
-    Gpu,             // Fully loaded into VRAM -- fast
-    MoeOffload,      // MoE: active experts in VRAM, inactive offloaded to RAM
-    CpuOffload,      // Partial GPU offload, spills to system RAM -- mixed
-    CpuOnly,         // Entirely in system RAM, no GPU -- slow
-    TensorParallel,  // Distributed via NCCL across cluster nodes
+    Gpu,            // Fully loaded into VRAM -- fast
+    MoeOffload,     // MoE: active experts in VRAM, inactive offloaded to RAM
+    CpuOffload,     // Partial GPU offload, spills to system RAM -- mixed
+    CpuOnly,        // Entirely in system RAM, no GPU -- slow
+    TensorParallel, // Distributed via NCCL across cluster nodes
 }
 
 /// Multi-dimensional score components (0-100 each).
@@ -858,11 +858,11 @@ fn estimate_tps(
 
     // Run mode penalties
     match run_mode {
-        RunMode::Gpu => {}                       // full speed
-        RunMode::TensorParallel => base *= 0.9,  // TP communication overhead
-        RunMode::MoeOffload => base *= 0.8,      // expert switching latency
-        RunMode::CpuOffload => base *= 0.5,      // significant penalty
-        RunMode::CpuOnly => base *= 0.3,         // worst case—override K to CPU
+        RunMode::Gpu => {}                      // full speed
+        RunMode::TensorParallel => base *= 0.9, // TP communication overhead
+        RunMode::MoeOffload => base *= 0.8,     // expert switching latency
+        RunMode::CpuOffload => base *= 0.5,     // significant penalty
+        RunMode::CpuOnly => base *= 0.3,        // worst case—override K to CPU
     }
 
     // CPU-only should use CPU K regardless of detected GPU
